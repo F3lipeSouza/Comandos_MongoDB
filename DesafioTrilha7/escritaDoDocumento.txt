@@ -1,0 +1,64 @@
+DESAFIO BANCO DE DADOS - FULLTURE
+
+
+"Criar uma database chamada desafio?"
+
+R: use <nome da database>.
+
+
+"criar uma collection chamada movie?"
+
+R: db.createCollection( <documento> )
+
+ou implicitamente "db.<nomeDaCollection>.insert( <documento> )
+
+
+
+1- Quantos são os filmes dirigidos por Sergio Leone e que possuem o gênero de drama?
+
+R: db.movies.count({ director: "Sergio Leone", genres: "Drama"})
+
+
+2-Quantos são os filmes publicados em 1991 e que possuem o gênero de comédia como o seu principal (listado na primeira posição)
+
+R: db.movies.count({ year:1991, “genres.0”: “Comedy”})
+
+
+3-Quantos filmes foram publicados na década de 1990?
+
+R: db.movies.count({ year: {$gte:1990, $lte:1999}})
+
+
+4-Quais filmes publicados na década de 1990, com nota IMDB maior que 8.5? Ordenar de forma crescente pelo título do filme.
+
+R: db.movies.find({ year: {$gte:1990, $lte:1999}, “imdb.rating”:{ $gt:8.5 }}).sort({ title:1})
+
+
+5-Qual o nome do filme que possui maior tempo de duração dentre os publicados em 2009, que não possua gênero de comédia
+
+R: db.movies.find({ year:2009, genres:{$ne:”Comedy”}}).sort({ runtime:-1 }).limit(1)
+
+
+6-Qual diretor de filmes brasileiros que mais ganhou prêmios?
+
+R: db.movies.aggregate([{ $group: { _id: "$director", totalWins:{ $sum: "$awards.wins" } }}, { $sort:{ totalWins:-1 } } )]).limit(1)
+
+
+7-Atualize o número de prêmios do filme Brazilian Western para 10. Atualizar também o texto localizado no campo awards.text
+
+R: db.movies.updateOne({ title:”Brazilian Western” }, { $set:{ “awards.wins”:10, “awards.text”:”10 wins & 6 nominations” } })
+
+
+8-Remova o campo poster de todos os filmes italianos.
+
+R: db.movies.updateMany({ countries:”Italy” }, { $unset:{ poster:’’ } } )
+
+
+9-Remova o gênero drama do filme Bound for Glory
+
+R: db.movies.updateMany({ title:”Bound for Glory” }, { $pull:{ genres: “Drama” } })
+
+
+10-Remova todos os filmes entre os anos 1968 e 1975.
+
+R: db.movies.deleteMany({ year:{ $gte:1968, $lte:1975} })
